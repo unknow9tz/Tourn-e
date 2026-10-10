@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tournée — Planificateur aide à domicile</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06080d;--panel:rgba(255,255,255,.035);--line:rgba(255,255,255,.08);--text:#e9edf5;--muted:#8891a5;--a:#7c5cff;--b:#22d3ee;--ok:#2ee59d;--ko:#ff5d7a;--r:18px;
+font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
+body{background:radial-gradient(1000px 600px at 0% -10%,#1d1654 0,transparent 60%),radial-gradient(900px 500px at 110% 0%,#063b38 0,transparent 55%),var(--bg);background-attachment:fixed}
+.app{display:grid;grid-template-columns:350px 1fr;gap:16px;padding:16px;max-width:1400px;margin:0 auto;min-height:100vh}
+@media(max-width:900px){.app{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.side{display:flex;flex-direction:column;gap:16px;max-height:calc(100vh - 32px);overflow:auto}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:700;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:0 8px 30px rgba(124,92,255,.35)}
+.brand b{display:block;font-size:17px}.brand small{color:var(--muted);font-size:12px}
+h3{margin:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px}
+input[type=text],input[type=time],input[type=number]{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--text);border-radius:11px;padding:9px 11px;font:inherit;outline:none}
+input:focus{border-color:var(--a);box-shadow:0 0 0 3px rgba(124,92,255,.2)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field{margin-bottom:10px}
+input[type=range]{width:100%;accent-color:var(--a)}
+.check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer}
+.btn{background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font:inherit;font-size:13px;cursor:pointer;transition:.15s}
+.btn:hover{background:rgba(255,255,255,.09)}
+.btn.primary{background:linear-gradient(135deg,var(--a),#3ad1ff);border:0;color:#fff;font-weight:600;box-shadow:0 10px 30px rgba(124,92,255,.3)}
+.btn.primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn.full{width:100%}
+.visits{display:flex;flex-direction:column;gap:8px}
+.visit{display:flex;gap:10px;align-items:center;padding:10px;border-radius:13px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.dot{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;font-size:12px;font-weight:700;background:rgba(124,92,255,.2);color:#c9bcff;flex:none}
+.visit .n{flex:1;min-width:0}.visit .n b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.visit .n small{color:var(--muted);font-size:12px}
+.x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:18px;padding:4px}.x:hover{color:var(--ko)}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:18px 0}
+main{display:flex;flex-direction:column;gap:16px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.top h1{margin:0;font-size:22px;letter-spacing:-.02em}
+.top p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{padding:14px;border-radius:var(--r);background:var(--panel);border:1px solid var(--line)}
+.stat small{color:var(--muted);font-size:12px}
+.stat b{display:block;font-size:24px;margin-top:4px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat.good b{background:linear-gradient(90deg,var(--ok),var(--b));-webkit-background-clip:text;color:transparent}
+.split{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
+@media(max-width:1100px){.split{grid-template-columns:1fr}}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;flex-wrap:wrap}
+.head b{font-size:15px}
+.seg{display:inline-flex;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:11px;padding:3px}
+.seg button{background:none;border:0;color:var(--muted);font:inherit;font-size:12px;padding:6px 10px;border-radius:8px;cursor:pointer}
+.seg button.on{background:rgba(124,92,255,.25);color:#fff}
+canvas{width:100%;aspect-ratio:1/1;display:block;border-radius:14px;cursor:crosshair;background:#0a0d16}
+.hint{font-size:12px;color:var(--muted);margin-top:10px}
+.tl{position:relative}
+.leg{display:grid;grid-template-columns:58px 1fr auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:start;animation:in .4s both}
+.leg:last-child{border-bottom:0}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.time{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:14px;color:var(--b);padding-top:2px}
+.name{font-weight:600;font-size:14px}
+.meta{color:var(--muted);font-size:12px;margin-top:3px;line-height:1.5}
+.travel{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;padding:4px 0 4px 70px;font-style:italic}
+.travel:before{content:"";width:2px;height:16px;background:linear-gradient(var(--a),var(--b));border-radius:2px;margin-left:-12px}
+.badge{font-size:11px;font-weight:600;padding:4px 9px;border-radius:99px;white-space:nowrap}
+.ok{background:rgba(46,229,157,.12);color:var(--ok)}.ko{background:rgba(255,93,122,.12);color:var(--ko)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#161b2b;border:1px solid var(--line);padding:10px 16px;border-radius:12px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
+.toast.show{opacity:1;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="card side">
+    <div class="brand"><div class="logo">T</div><div><b>Tournée</b><small>Planificateur · aide à domicile</small></div></div>
+
+    <div>
+      <h3>Réglages de la journée</h3>
+      <div class="grid">
+        <div class="field"><label>Départ</label><input type="time" id="start"></div>
+        <div class="field"><label>Vitesse moy. (km/h)</label><input type="number" id="speedNum" min="5" max="60"></div>
+      </div>
+      <div class="field"><label>Vitesse <span id="speedV"></span></label><input type="range" id="speed" min="5" max="60" step="1"></div>
+      <label class="check"><input type="checkbox" id="peak"> Heures de pointe (+35 % de trajet)</label>
+    </div>
+
+    <div>
+      <h3>Nouvelle visite</h3>
+      <div class="field"><label>Bénéficiaire</label><input type="text" id="name" placeholder="Ex. Mme Martin"></div>
+      <div class="grid">
+        <div class="field"><label>Arrivée au plus tôt</label><input type="time" id="from" value="09:00"></div>
+        <div class="field"><label>Arrivée au plus tard</label><input type="time" id="to" value="10:00"></div>
+      </div>
+      <div class="field"><label>Durée de la prestation (min)</label><input type="number" id="dur" value="30" min="5" max="240"></div>
+      <div class="field"><label>Position</label><input type="text" id="pos" readonly placeholder="Cliquez sur la carte"></div>
+      <button class="btn primary full" id="add">Ajouter la visite</button>
+    </div>
+
+    <div>
+      <h3>Visites <span id="count"></span></h3>
+      <div class="visits" id="visits"></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="top">
+      <div><h1>Tournée du jour</h1><p id="sub">Placez les visites sur la carte, puis lancez l'optimisation.</p></div>
+      <div class="actions">
+        <button class="btn" id="demo">Données démo</button>
+        <button class="btn" id="clear">Vider</button>
+        <button class="btn primary" id="optimize">✦ Optimiser la tournée</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><small>Visites</small><b id="sVisits">0</b></div>
+      <div class="stat"><small>Distance</small><b id="sKm">—</b></div>
+      <div class="stat"><small>Temps de trajet</small><b id="sTravel">—</b></div>
+      <div class="stat good"><small>Gain vs ordre initial</small><b id="sGain">—</b></div>
+    </div>
+
+    <div class="split">
+      <section class="card">
+        <div class="head">
+          <b>Carte · 10 × 10 km</b>
+          <div class="seg"><button id="modeVisit" class="on">Placer visite</button><button id="modeBase">Départ aide</button></div>
+        </div>
+        <canvas id="map"></canvas>
+        <p class="hint">Cliquez pour positionner la prochaine visite ou le départ. Vert = à l'heure · rouge = créneau dépassé.</p>
+      </section>
+      <section class="card">
+        <div class="head"><b>Planning</b><span id="status" class="badge ok" style="display:none"></span></div>
+        <div class="tl" id="timeline"></div>
+      </section>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const hm = m => { m = Math.round(m); return String(Math.floor(m/60)%24).padStart(2,"0") + ":" + String(m%60).padStart(2,"0"); };
+const pm = s => { const [h,m] = s.split(":").map(Number); return h*60 + m; };
+const dist = (a,b) => Math.hypot(a.x-b.x, a.y-b.y);
+
+const DEMO = {
+  base:{x:5,y:5}, start:"08:00", speed:25, peak:false, nextId:8,
+  visits:[
+    {id:1,name:"Mme Dupont",x:2.1,y:3.4,from:"08:30",to:"09:00",dur:40},
+    {id:2,name:"M. Benali",x:7.8,y:2.2,from:"08:00",to:"08:45",dur:30},
+    {id:3,name:"Mme Leroy",x:4.6,y:8.1,from:"09:30",to:"10:00",dur:45},
+    {id:4,name:"Mme Girard",x:8.9,y:6.7,from:"10:00",to:"10:30",dur:30},
+    {id:5,name:"M. Petit",x:1.5,y:7.4,from:"11:00",to:"12:00",dur:30},
+    {id:6,name:"Mme Roux",x:6.2,y:4.0,from:"12:00",to:"12:30",dur:20},
+    {id:7,name:"M. Haddad",x:3.3,y:5.9,from:"14:00",to:"15:00",dur:60}
+  ]
+};
+
+let S = null, plan = null, mode = "visit", pending = null, W = 0, H = 0;
+const canvas = $("#map"), ctx = canvas.getContext("2d");
+
+function save(){ try{ localStorage.setItem("tournee-v1", JSON.stringify(S)); }catch(e){} }
+function load(){
+  try{ const raw = localStorage.getItem("tournee-v1"); if(raw) return JSON.parse(raw); }catch(e){}
+  return {base:{x:5,y:5}, start:"08:00", speed:25, peak:false, nextId:1, visits:[]};
+}
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+function changed(){ plan = null; save(); render(); }
+
+function tt(a,b){
+  const d = dist(a,b);
+  return Math.max(2, d / S.speed * 60 * (S.peak ? 1.35 : 1));
+}
+
+function simulate(order){
+  let t = pm(S.start), pos = S.base, travel = 0, km = 0, late = 0;
+  const legs = [];
+  for (const v of order){
+    const tr = tt(pos, v), arr = t + tr, st = Math.max(arr, pm(v.from));
+    const lt = Math.max(0, st - pm(v.to));
+    late += lt; travel += tr; km += dist(pos, v);
+    legs.push({v, arr, st, end: st + v.dur, tr, late: lt, wait: st - arr});
+    t = st + v.dur; pos = v;
+  }
+  const back = tt(pos, S.base); travel += back; km += dist(pos, S.base);
+  return {legs, travel, km, late, back, end: t + back, cost: travel + late * 25};
+}
+
+function bestOrder(list){
+  if (list.length <= 8){
+    let bestO = null, bestC = Infinity; const used = [], cur = [];
+    (function rec(){
+      if (cur.length === list.length){
+        const c = simulate(cur).cost;
+        if (c < bestC){ bestC = c; bestO = cur.slice(); }
+        return;
+      }
+      for (let i = 0; i < list.length; i++){
+        if (used[i]) continue;
+        used[i] = 1; cur.push(list[i]); rec(); cur.pop(); used[i] = 0;
+      }
+    })();
+    return bestO;
+  }
+  let o = [...list].sort((a,b) => pm(a.from) - pm(b.from)), improved = true, pass = 0;
+  while (improved && pass++ < 100){
+    improved = false;
+    for (let i = 0; i < o.length - 1; i++)
+      for (let j = i + 1; j < o.length; j++){
+        const cand = [...o.slice(0,i), ...o.slice(i,j+1).reverse(), ...o.slice(j+1)];
+        if (simulate(cand).cost < simulate(o).cost - 1e-9){ o = cand; improved = true; }
+      }
+  }
+  return o;
+}
+
+function runPlan(){
+  if (!S.visits.length){ toast("Ajoutez au moins une visite"); return; }
+  const btn = $("#optimize"); btn.textContent = "Calcul…";
+  setTimeout(() => {
+    const naive = simulate(S.visits), order = bestOrder(S.visits), opt = simulate(order);
+    plan = {order, opt, naive};
+    btn.textContent = "✦ Optimiser la tournée";
+    render();
+    toast("Tournée optimisée");
+  }, 30);
+}
+
+function render(){
+  $("#speed").value = S.speed; $("#speedNum").value = S.speed; $("#speedV").textContent = S.speed + " km/h";
+  $("#start").value = S.start; $("#peak").checked = S.peak;
+  $("#count").textContent = S.visits.length ? "(" + S.visits.length + ")" : "";
+  $("#sVisits").textContent = S.visits.length;
+  $("#pos").value = pending ? `x ${pending.x.toFixed(1)} · y ${pending.y.toFixed(1)} km` : "";
+
+  $("#visits").innerHTML = S.visits.length ? S.visits.map((v,i) => `
+    <div class="visit">
+      <div class="dot">${plan ? plan.order.indexOf(v)+1 : i+1}</div>
+      <div class="n"><b>${esc(v.name)}</b><small>${v.from}–${v.to} · ${v.dur} min</small></div>
+      <button class="x" data-del="${v.id}" title="Supprimer">×</button>
+    </div>`).join("") : `<div class="empty">Aucune visite. Placez-les sur la carte.</div>`;
+
+  if (!plan){
+    $("#sKm").textContent = "—"; $("#sTravel").textContent = "—"; $("#sGain").textContent = "—";
+    $("#status").style.display = "none";
+    $("#sub").textContent = S.visits.length ? "Planning non calculé. Lancez l'optimisation." : "Placez les visites sur la carte, puis lancez l'optimisation.";
+    $("#timeline").innerHTML = `<div class="empty">Le planning apparaîtra ici après optimisation.</div>`;
+  } else {
+    const {opt, naive, order} = plan;
+    $("#sKm").textContent = opt.km.toFixed(1) + " km";
+    $("#sTravel").textContent = Math.round(opt.travel) + " min";
+    const gain = Math.max(0, Math.round(naive.travel - opt.travel));
+    $("#sGain").textContent = "−" + gain + " min";
+    $("#sub").textContent = "Fin de tournée estimée à " + hm(opt.end) + ".";
+    const st = $("#status"); st.style.display = "";
+    st.className = "badge " + (opt.late > 0 ? "ko" : "ok");
+    st.textContent = opt.late > 0 ? "+" + Math.round(opt.late) + " min de retard" : "Tous les créneaux respectés";
+    let h = `<div class="leg" style="grid-template-columns:58px 1fr"><div class="time">${S.start}</div><div><div class="name">Départ</div><div class="meta">Domicile de l'aide</div></div></div>`;
+    opt.legs.forEach((l,i) => {
+      h += `<div class="travel">${Math.round(l.tr)} min de trajet${l.wait > 1 ? " · attente " + Math.round(l.wait) + " min" : ""}</div>
+      <div class="leg">
+        <div class="time">${hm(l.st)}</div>
+        <div><div class="name">${i+1}. ${esc(l.v.name)}</div>
+          <div class="meta">Fenêtre ${l.v.from}–${l.v.to} · prestation ${l.v.dur} min · fin ${hm(l.end)}</div></div>
+        <span class="badge ${l.late > 0 ? "ko" : "ok"}">${l.late > 0 ? "+" + Math.round(l.late) + " min" : "À l'heure"}</span>
+      </div>`;
+    });
+    h += `<div class="travel">${Math.round(opt.back)} min de retour</div>
+      <div class="leg" style="grid-template-columns:58px 1fr"><div class="time">${hm(opt.end)}</div><div><div class="name">Retour au domicile</div></div></div>`;
+    $("#timeline").innerHTML = h;
+  }
+  $("#modeVisit").classList.toggle("on", mode === "visit");
+  $("#modeBase").classList.toggle("on", mode === "base");
+}
+
+/* ---------- Carte ---------- */
+function resize(){
+  const dpr = window.devicePixelRatio || 1, r = canvas.getBoundingClientRect();
+  W = r.width; H = r.height; canvas.width = W*dpr; canvas.height = H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const P = (p) => [p.x / 10 * W, p.y / 10 * H];
+
+function draw(t){
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle = "rgba(255,255,255,.035)"; ctx.lineWidth = 1;
+  for (let i = 1; i < 10; i++){
+    ctx.beginPath(); ctx.moveTo(i*W/10,0); ctx.lineTo(i*W/10,H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,i*H/10); ctx.lineTo(W,i*H/10); ctx.stroke();
+  }
+  ctx.fillStyle = "rgba(255,255,255,.12)";
+  ctx.beginPath(); ctx.arc(W/2, H/2, 3, 0, Math.PI*2); ctx.fill();
+
+  if (plan){
+    const pts = [S.base, ...plan.order, S.base].map(P);
+    const g = ctx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,"#7c5cff"); g.addColorStop(1,"#22d3ee");
+    ctx.save();
+    ctx.strokeStyle = g; ctx.lineWidth = 3; ctx.lineJoin = "round";
+    ctx.shadowColor = "rgba(124,92,255,.7)"; ctx.shadowBlur = 14;
+    ctx.setLineDash([10,8]); ctx.lineDashOffset = -t/40;
+    ctx.beginPath(); pts.forEach(([x,y],i) => i ? ctx.lineTo(x,y) : ctx.moveTo(x,y)); ctx.stroke();
+    ctx.restore();
+  }
+
+  const [bx,by] = P(S.base);
+  ctx.save(); ctx.translate(bx,by); ctx.rotate(Math.PI/4);
+  ctx.fillStyle = "#fff"; ctx.shadowColor = "rgba(255,255,255,.6)"; ctx.shadowBlur = 12;
+  ctx.fillRect(-7,-7,14,14); ctx.restore();
+  ctx.fillStyle = "#8891a5"; ctx.font = "11px Inter, sans-serif"; ctx.fillText("Départ", bx+12, by+4);
+
+  S.visits.forEach(v => {
+    const [x,y] = P(v); const idx = plan ? plan.order.indexOf(v) : -1;
+    const leg = plan ? plan.opt.legs.find(l => l.v === v) : null;
+    const col = leg ? (leg.late > 0 ? "#ff5d7a" : "#2ee59d") : "#7c5cff";
+    ctx.beginPath(); ctx.arc(x,y,15,0,Math.PI*2);
+    ctx.fillStyle = col + "33"; ctx.fill();
+    ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2);
+    ctx.fillStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 16; ctx.fill(); ctx.shadowBlur = 0;
+    if (idx >= 0){
+      ctx.fillStyle = "#06080d"; ctx.font = "700 10px Inter, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(idx+1, x, y+0.5); ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    }
+    ctx.fillStyle = "#e9edf5"; ctx.font = "12px Inter, sans-serif"; ctx.fillText(v.name, x+18, y+4);
+  });
+
+  if (pending){
+    const [x,y] = P(pending);
+    ctx.strokeStyle = "#22d3ee"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(x,y,12 + Math.sin(t/200)*3,0,Math.PI*2); ctx.stroke();
+  }
+  requestAnimationFrame(draw);
+}
+
+canvas.addEventListener("click", e => {
+  const r = canvas.getBoundingClientRect();
+  const p = { x: (e.clientX - r.left) / r.width * 10, y: (e.clientY - r.top) / r.height * 10 };
+  if (mode === "base"){ S.base = p; plan = null; save(); render(); toast("Départ repositionné"); }
+  else { pending = p; render(); }
+});
+
+/* ---------- Interface ---------- */
+function bindSettings(){
+  $("#start").onchange = e => { S.start = e.target.value || "08:00"; changed(); };
+  $("#speed").oninput = e => { S.speed = +e.target.value; $("#speedNum").value = S.speed; $("#speedV").textContent = S.speed+" km/h"; changed(); };
+  $("#speedNum").onchange = e => { S.speed = Math.min(60, Math.max(5, +e.target.value || 25)); changed(); };
+  $("#peak").onchange = e => { S.peak = e.target.checked; changed(); };
+  $("#modeVisit").onclick = () => { mode = "visit"; render(); };
+  $("#modeBase").onclick = () => { mode = "base"; render(); toast("Cliquez sur la carte pour placer le départ"); };
+  $("#add").onclick = () => {
+    const name = $("#name").value.trim();
+    if (!name){ toast("Indiquez le nom du bénéficiaire"); return; }
+    if (!pending){ toast("Cliquez sur la carte pour placer la visite"); return; }
+    const from = $("#from").value || "09:00", to = $("#to").value || "10:00";
+    if (pm(to) < pm(from)){ toast("L'heure limite doit suivre l'heure au plus tôt"); return; }
+    const dur = Math.min(240, Math.max(5, +$("#dur").value || 30));
+    S.visits.push({id: S.nextId++, name, x: pending.x, y: pending.y, from, to, dur});
+    pending = null; $("#name").value = "";
+    changed(); toast("Visite ajoutée");
+  };
+  $("#visits").onclick = e => {
+    const id = e.target.dataset.del; if (!id) return;
+    S.visits = S.visits.filter(v => v.id !== +id); changed();
+  };
+  $("#optimize").onclick = runPlan;
+  $("#demo").onclick = () => { S = JSON.parse(JSON.stringify(DEMO)); pending = null; plan = null; save(); render(); runPlan(); };
+  $("#clear").onclick = () => { S.visits = []; plan = null; changed(); toast("Tournée vidée"); };
+}
+
+S = load();
+bindSettings();
+resize(); window.addEventListener("resize", resize);
+render();
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
